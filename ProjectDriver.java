@@ -88,7 +88,14 @@ public class ProjectDriver {
 							System.out.println("File error / file not found");
 						}
 						break;
-					case "C":
+					case "C": // code to add a lab to a class
+						System.out.print("Enter the Class Number to add a Lab to: ");
+						String classNumber = scanner.nextLine();
+						try {
+							addLabToClass(classNumber);  
+						} catch (FileNotFoundException e) {
+						        System.out.println("File error / file not found");
+						}
 						break;
 					case "X":
 						break;
@@ -160,6 +167,43 @@ public class ProjectDriver {
 		}
 		pw.close();
 	}
+	public static void addLabToClass(String classNumber) throws FileNotFoundException {
+		File file = new File("lec.txt"); 
+		List<String> lines = new ArrayList<>();
+		boolean classFound = false;
+		
+		// Read all lines from the file and check if the class exists
+		try (Scanner fileScanner = new Scanner(file)) {
+		    while (fileScanner.hasNextLine()) {
+		        String line = fileScanner.nextLine();
+		        lines.add(line);
+		        if (line.startsWith(classNumber) && !line.contains("Lab")) { // Check if the line represents the class
+		            classFound = true;
+		        }
+		    }
+		}
+		
+		if (classFound) {
+		    // Prompts the user for lab details
+		    System.out.println("Enter Lab details (e.g., LabNumber Room): ");
+		    String labDetails = scanner.nextLine(); // Use the existing scanner instance
+		
+		    // Add the new lab to the list
+		    lines.add(classNumber + "Lab " + labDetails);
+		
+		    // Write the updated list back to the file
+		    try (PrintWriter writer = new PrintWriter(file)) {
+		        for (String line : lines) {
+		            writer.println(line);
+		        }
+		    }
+		
+		    System.out.println("Lab added successfully.");
+		} else {
+		    System.out.println("Class not found.");
+		}
+		}
+			
 }
 
 abstract class Student{
