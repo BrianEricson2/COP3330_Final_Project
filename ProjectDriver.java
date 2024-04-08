@@ -54,6 +54,13 @@ public class ProjectDriver {
 				while((stuSelect.toUpperCase()).compareTo("X") != 0) {
 					switch((stuSelect.toUpperCase())) {
 					case "A":
+						Scanner scan = new Scanner(System.in);
+						System.out.println("Enter Student's ID: ");
+						String stuID = scan.nextLine();
+						System.out.println("Student Type (PhD, MS or Undergrad): ");
+						String stuType = scan.nextLine();
+						System.out.println("Enter remaining information\n");
+						String remInfo = scan.nextLine();
 						break;
 					case "B":
 						break;
@@ -91,8 +98,10 @@ public class ProjectDriver {
 					case "C": // code to add a lab to a class
 						System.out.print("Enter the Class Number to add a Lab to: ");
 						String classNumber = scanner.nextLine();
+						System.out.print("Enter the Lab's Class Number: ");
+						String labNumber = scanner.nextLine();
 						try {
-							addLabToClass(classNumber);  
+							addLabToClass(classNumber, labNumber);  
 						} catch (FileNotFoundException e) {
 						        System.out.println("File error / file not found");
 						}
@@ -141,6 +150,10 @@ public class ProjectDriver {
 			line = scanner.nextLine();
 			String[] arr = line.split(",");
 			if(arr[0].compareTo(crn) == 0) {
+				if(arr.length < 3) {
+					System.out.println("Can not delete a lab");
+					return;
+				}
 				System.out.println("[ " + arr[0] + "," + arr[1] + "," + arr[2] + " ] deleted!");
 				if(scanner.hasNextLine()) {
 					line = scanner.nextLine();
@@ -157,9 +170,6 @@ public class ProjectDriver {
 				strList.add(line);
 			}
 		}
-		for(String s : strList) {
-			System.out.println(s);
-		}
 		PrintWriter pw = new PrintWriter(file);
 		while(strList.size() != 0) {
 			pw.println(strList.get(0));
@@ -167,43 +177,55 @@ public class ProjectDriver {
 		}
 		pw.close();
 	}
-	public static void addLabToClass(String classNumber) throws FileNotFoundException {
-		File file = new File("lec.txt"); 
+	public static void addLabToClass(String classNumber, String labNumber) throws FileNotFoundException {
+		File file = new File("D:\\Users\\beric\\eclipse-workspace\\Final Project\\src\\finalProject\\lec.txt"); 
 		List<String> lines = new ArrayList<>();
 		boolean classFound = false;
-		
+		int lectureIndex = 0;
+		int i = 0;
+
 		// Read all lines from the file and check if the class exists
 		try (Scanner fileScanner = new Scanner(file)) {
 		    while (fileScanner.hasNextLine()) {
 		        String line = fileScanner.nextLine();
 		        lines.add(line);
-		        if (line.startsWith(classNumber) && !line.contains("Lab")) { // Check if the line represents the class
+		        String[] arr = line.split(",");
+		        i++;
+		        if (arr[0].compareTo(classNumber) == 0) { // Check if the line represents the class
 		            classFound = true;
+		            lectureIndex = i;
+		        }
+		        if(arr[0].compareTo(labNumber) == 0) {
+		        	System.out.println("Class number for lab already in use.");
+		        	return;
 		        }
 		    }
 		}
-		
+
 		if (classFound) {
 		    // Prompts the user for lab details
 		    System.out.println("Enter Lab details (e.g., LabNumber Room): ");
 		    String labDetails = scanner.nextLine(); // Use the existing scanner instance
-		
+
 		    // Add the new lab to the list
-		    lines.add(classNumber + "Lab " + labDetails);
-		
+		    lines.add(lectureIndex, (labNumber + " " + labDetails));
+
 		    // Write the updated list back to the file
 		    try (PrintWriter writer = new PrintWriter(file)) {
 		        for (String line : lines) {
 		            writer.println(line);
 		        }
 		    }
-		
+
 		    System.out.println("Lab added successfully.");
 		} else {
 		    System.out.println("Class not found.");
 		}
-		}
-			
+	}
+}
+
+class College{
+	private ArrayList<Student> stuList;
 }
 
 abstract class Student{
