@@ -64,6 +64,9 @@ public class ProjectDriver {
 						addStudent();
 						break;
 					case "B": //remove student
+					    System.out.print("Enter the Student's ID to delete: ");
+					    String stuIdToDelete = scanner.nextLine();
+					    deleteStudentById(stuIdToDelete);
 						break;
 					case "C": //print fee invoice
 						break;
