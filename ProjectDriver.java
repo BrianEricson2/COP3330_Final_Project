@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 
 public class ProjectDriver {
+	//array of students
+	private static ArrayList<Student> stuList = new ArrayList<Students>();
 	private static Scanner scanner;
 	private static String mainMenu (){
 		scanner = new Scanner(System.in);
@@ -17,6 +19,8 @@ public class ProjectDriver {
 		//returns the user’s choice of the menu (just like we did in class!)
 		return option;
 	}
+	
+	//student menu used for student management (1) selection
 	private static String studentMenu() {
 		scanner = new Scanner(System.in);
 		String option = "0";
@@ -31,6 +35,8 @@ public class ProjectDriver {
 		option = scanner.nextLine();
 		return option;
 	}
+	
+	//course menu used for course management (2) selection
 	private static String courseMenu() {
 		scanner = new Scanner(System.in);
 		String option = "0";
@@ -44,40 +50,36 @@ public class ProjectDriver {
 		option = scanner.nextLine();
 		return option;
 	}
+	
 	public static void main(String[] args) {
 		scanner = new Scanner(System.in);
 		String selection = mainMenu();
 		while(selection.compareTo("0") != 0) {
 			switch(selection) {
-			case "1":
+			case "1": //student management
 				String stuSelect = studentMenu();
 				while((stuSelect.toUpperCase()).compareTo("X") != 0) {
 					switch((stuSelect.toUpperCase())) {
-					case "A":
-						Scanner scan = new Scanner(System.in);
-						System.out.println("Enter Student's ID: ");
-						String stuID = scan.nextLine();
-						System.out.println("Student Type (PhD, MS or Undergrad): ");
-						String stuType = scan.nextLine();
-						System.out.println("Enter remaining information\n");
-						String remInfo = scan.nextLine();
+					case "A": //add student
+						addStudent();
 						break;
-					case "B":
+					case "B": //remove student
 						break;
-					case "C":
+					case "C": //print fee invoice
 						break;
-					case "D":
+					case "D": //print all students
 						break;
 					case "X":
 						break;
 					}
-					stuSelect = studentMenu();
+					stuSelect = studentMenu(); //user selects option from student menu
 				}
-			case "2":
+				
+			case "2": //course management
 				String courseSelect = courseMenu();
 				while((courseSelect.toUpperCase()).compareTo("X") != 0) {
 					switch((courseSelect.toUpperCase())) {
-					case "A":
+					case "A": //find/print course
 						System.out.print("Enter the Class/Lab Number: ");
 						Scanner scan = new Scanner(System.in);
 						try {
@@ -86,7 +88,7 @@ public class ProjectDriver {
 							System.out.println("File error / file not found");
 						}
 						break;
-					case "B":
+					case "B": //delete lecture (I'm assuming we don't delete labs)
 						System.out.print("Enter the Class/Lab Number: ");
 						scan = new Scanner(System.in);
 						try {
@@ -109,13 +111,14 @@ public class ProjectDriver {
 					case "X":
 						break;
 					}
-					courseSelect = courseMenu();
+					courseSelect = courseMenu(); //user selects option from course menu
 				}
 			}
-			selection = mainMenu();
+			selection = mainMenu(); //user selects option from main menu
 		}
 		System.out.println("Take Care!");
 	}
+	
 	public static void findCourse(String crn) throws FileNotFoundException {
 		String line = "";
 		String[] lecture = {};
@@ -124,52 +127,60 @@ public class ProjectDriver {
 		while(scanner.hasNextLine()) {
 			line = scanner.nextLine();
 			String[] arr = line.split(",");
-			if(arr.length > 2) {
-				lecture = arr;
+			if(arr.length > 2) { //if a line has more than two components, it is a lecture
+				lecture = arr; // saves most recently scanned/read lecture because crn might be a lab
 			}
 			if(arr[0].compareTo(crn) == 0) {
-				if(arr.length > 2) {
+				if(arr.length > 2) { //crn is a lecture
 					System.out.println("[ " + arr[0] + "," + arr[1] + "," + arr[2] + " ]");
+					                         // crn          prefix          title
 					return;
 				}
-				else {
+				else { //crn is a lab
 					System.out.println("Lab for [ " + lecture[0] + "," + lecture[1] + "," + lecture[2] + " ]");
+					                          //lecture   crn              prefix              title
 					System.out.println("Lab Room " + arr[1]);
 					return;
 				}
 			}
 		}
-		System.out.println("[ ]");
+		System.out.println("[ ]"); //if crn is not found in text file
 	}
+	
 	public static void deleteCourse(String crn) throws FileNotFoundException{
+		// this method reads all of the lectures and labs except for the deleted lecture and its associated labs
+		// then the list containing all of the nondeleted lectures and labs is printed back to text file
 		String line = "";
 		File file = new File("D:\\Users\\beric\\eclipse-workspace\\Final Project\\src\\finalProject\\lec.txt");
-		ArrayList <String> strList = new ArrayList<String>();
+		ArrayList <String> strList = new ArrayList<String>(); //contains non-deleted lectures & labs
 		Scanner scanner = new Scanner(file);
 		while(scanner.hasNextLine()) {
 			line = scanner.nextLine();
 			String[] arr = line.split(",");
 			if(arr[0].compareTo(crn) == 0) {
-				if(arr.length < 3) {
+				String[] delLecture = arr;
+				if(arr.length < 3) { //labs have only two components
 					System.out.println("Can not delete a lab");
 					return;
 				}
-				System.out.println("[ " + arr[0] + "," + arr[1] + "," + arr[2] + " ] deleted!");
-				if(scanner.hasNextLine()) {
+				if(scanner.hasNextLine()) { //in case the deleted course is on last line
 					line = scanner.nextLine();
 					arr = line.split(",");
-					while(arr.length < 3 && scanner.hasNextLine()) {
+					while(arr.length < 3 && scanner.hasNextLine()) { //while the read line is a lab, it is not added to strList
 						line = scanner.nextLine();
 						arr = line.split(",");
 					}
-					if(arr.length > 2)
-						strList.add(line);
+					if(arr.length > 2) // if a line has 3 or more components, it contains a non-deleted lecture
+						strList.add(line); //which must be added back to the text file
 				}
+				System.out.println("[ " + delLecture[0] + "," + delLecture[1] + "," + delLecture[2] + " ] deleted!");
 			}
 			else {
 				strList.add(line);
 			}
 		}
+		
+		//print the non-deleted courses back to file
 		PrintWriter pw = new PrintWriter(file);
 		while(strList.size() != 0) {
 			pw.println(strList.get(0));
@@ -222,10 +233,118 @@ public class ProjectDriver {
 		    System.out.println("Class not found.");
 		}
 	}
-}
-
-class College{
-	private ArrayList<Student> stuList;
+	
+	public static void addStudent() {
+		Scanner scan = new Scanner(System.in);
+		String stuID = "";
+		try {
+			System.out.println("Enter Student's ID: ");
+			stuID = scan.nextLine();
+			if(stuID.length() != 6) //check if id is 6 characters long
+				throw new IdException();
+			char[] idCharArr = stuID.toCharArray();
+			for(int i = 0; i < 6; i++) {
+				//check if first two characters are letters
+				if(i < 2) {
+					char c = Character.toUpperCase(idCharArr[i]);
+					if(!(c > 64 && c < 91))
+						throw new IdException();
+				}
+				
+				//check if last four characters are digits
+				else {
+					if(!(idCharArr[i] > 47 && idCharArr[i] < 58))
+						throw new IdException();
+				}
+			}
+			
+			//check if ID is unique
+			if(stuList != null) {
+				for(Student s : stuList) {
+					if((s.getId()).compareToIgnoreCase(stuID) == 0)
+						throw new IdException();
+				}
+			}
+		}
+		catch(IdException e) {
+			System.out.println(e.getMessage());
+			return;
+		}
+		System.out.println("Student Type (PhD, MS or Undergrad): ");
+		String stuType = scan.nextLine();
+		try {
+			System.out.println("Enter remaining information\n");
+			String[] remInfo = (scan.nextLine()).split("\\|");
+			switch(stuType) {
+				case "PhD":
+					//must convert all courses TAed into integers
+					String[] crnStr = remInfo[3].split(",");
+					int[] crn = new int[crnStr.length];
+					for(int i = 0; i < crnStr.length; i++)
+						crn[i] = Integer.parseInt(crnStr[i]);
+					
+					PhdStudent pStu = new PhdStudent(remInfo[0], stuID, remInfo[1], remInfo[2], crn);
+												          //name, id, advisor, research subject, TA courses
+					stuList.add(pStu);
+					break;
+				case "MS":
+					//must convert all courses taken/TAed into integers
+					crnStr = remInfo[1].split(","); //courses taken
+					crn = new int[crnStr.length];
+					for(int i = 0; i < crnStr.length; i++)
+						crn[i] = Integer.parseInt(crnStr[i]);
+					
+					String[] crnStrTA = remInfo[2].split(","); //courses student is TA
+					int[] crnTA = new int[crnStrTA.length];
+					for(int i = 0; i < crnStrTA.length; i++)
+						crnTA[i] = Integer.parseInt(crnStrTA[i]);
+					
+					MsStudent mStu = new MsStudent(remInfo[0], stuID, crn, crnTA);
+					                              //name, id, course taken, TA courses
+					stuList.add(mStu);
+					break;
+				case "Undergrad":
+					//must convert all input fields into respective types
+					crnStr = remInfo[1].split(",");
+					crn = new int[crnStr.length];
+					for(int i = 0; i < crnStr.length; i++)
+						crn[i] = Integer.parseInt(crnStr[i]);
+					double gpa = Double.parseDouble(remInfo[2]);
+					boolean res = Boolean.parseBoolean(remInfo[3]);
+					
+					UndergraduateStudent uStu = new UndergraduateStudent(remInfo[0], stuID, crn, gpa, res);
+					stuList.add(uStu);
+					break;
+			}
+			System.out.println("[ " + remInfo[0] + "] added!\n");
+		}
+		catch(Exception e) {
+			System.out.print("Must input data in following pattern: \n\t");
+			switch(stuType) {
+				case "PhD":
+					System.out.println("Student Name|Student ID|Advisor|Research Subject|Courses TAed\n");
+					break;
+				case "MS":
+					System.out.println("Student Name|Student ID|Courses Taken|Courses TAed\n");
+					break;
+				case "Undergrad":
+					System.out.println("Student Name|Student ID|Courses Taken|GPA|Resident Status (true/false) \n");
+					break;
+			}
+		}
+	}
+	
+	public static void deleteStudentById(String id) {
+		String name = "";
+		for(Student stu : stuList) {
+			if(stu.getId().compareToIgnoreCase(id) == 0) {
+				name = stu.getName();
+				stuList.remove(stu);
+				System.out.println("[ " + name + " ] deleted!\n");
+			}
+		}
+		System.out.println("Student not found.\n");
+	}
 }
 
 abstract class Student{
@@ -266,9 +385,9 @@ class UndergraduateStudent extends Student{
 }
 
 abstract class GraduateStudent extends Student{
-	private int crnTA;
+	private int[] crnTA;
 	
-	public GraduateStudent (String name, String id, int crn) {
+	public GraduateStudent (String name, String id, int[] crn) {
 		//crn is the crn that the grad student is a teaching assistant for
 		super(name, id);
 		this.crnTA = crn;
@@ -279,7 +398,7 @@ class PhdStudent extends GraduateStudent{
 	private String advisor;
 	private String researchSubject;
 	
-	public PhdStudent (String name, String id, String advisor, String researchSubject, int crn) {
+	public PhdStudent (String name, String id, String advisor, String researchSubject, int[] crn) {
 		//crn is the crn that the grad student is a teaching assistant for
 		super(name, id, crn);
 		this.advisor = advisor;
@@ -290,7 +409,7 @@ class PhdStudent extends GraduateStudent{
 class MsStudent extends GraduateStudent{
 private int [] gradCrnsTaken;
 	
-	public MsStudent (String name, String id, int [] gradCrnsTaken, int crn) {
+	public MsStudent (String name, String id, int [] gradCrnsTaken, int[] crn) {
 		// gradCoursesTaken is the array of the crns that the Ms student is taking
 		//crn is the course number that the Phd student is a teaching assistant for
 		super(name, id, crn);
@@ -299,5 +418,7 @@ private int [] gradCrnsTaken;
 }
 
 class IdException extends Exception{
-	
+	public String getMessage() {
+		return "Invalid id format or ID already exists\nTry again later!\n";
+	}
 }
