@@ -338,16 +338,20 @@ public class ProjectDriver {
 	}
 	
 	public static void deleteStudentById(String id) {
-		String name = "";
-		for(Student stu : stuList) {
-			if(stu.getId().compareToIgnoreCase(id) == 0) {
-				name = stu.getName();
-				stuList.remove(stu);
-				System.out.println("[ " + name + " ] deleted!\n");
-			}
-		}
-		System.out.println("Student not found.\n");
-	}
+	    boolean found = false;
+	    for (Iterator<Student> iterator = stuList.iterator(); iterator.hasNext(); ) {
+	        Student stu = iterator.next();
+	        if (stu.getId().compareToIgnoreCase(id) == 0) {
+	            iterator.remove();
+	            System.out.println("[ " + stu.getName() + " ] deleted!\n");
+	            found = true;
+	            break; 
+	        }
+	    }
+	    if (!found) {
+	        System.out.println("Student not found.\n");
+	    }
+}
 }
 
 abstract class Student{
