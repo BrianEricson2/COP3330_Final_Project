@@ -374,6 +374,44 @@ abstract class Student{
 	public void setId(String id) {
 		this.id = id;
 	}
+
+	public int getListOfCrdHrs(int crn) throws FileNotFoundException {
+		String line = "";
+		File file = new File("C:\\Users\\beric\\OneDrive\\Documents\\lec.txt");
+		Scanner scanner = new Scanner(file);
+		while(scanner.hasNextLine()) {
+			line = scanner.nextLine();
+			String[] arr = line.split(",");
+			if(Integer.parseInt(arr[0]) == crn) {
+				if(arr.length > 2) { //crn is a lecture
+					if((arr[4].toUpperCase()).compareTo("ONLINE") == 0) {
+						return Integer.parseInt(arr[5]);
+					}
+					else {
+						return Integer.parseInt(arr[7]);
+					}
+				}
+				else { //crn is a lab
+					return 0;
+				}
+			}
+		}
+		return -1;
+	}
+		
+	public String getListOfCrs(int crn) throws FileNotFoundException{
+		String line = "";
+		File file = new File("C:\\Users\\beric\\OneDrive\\Documents\\lec.txt");
+		Scanner scanner = new Scanner(file);
+		while(scanner.hasNextLine()) {
+			line = scanner.nextLine();
+			String[] arr = line.split(",");
+			if(Integer.parseInt(arr[0]) == crn) {
+				return arr[1];
+			}
+		}
+		return "Course not found";
+	}
 	
 	//abstract public void printInvoice();
 }
