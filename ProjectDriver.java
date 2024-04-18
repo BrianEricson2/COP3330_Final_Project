@@ -5,7 +5,7 @@ import java.util.*;
 
 public class ProjectDriver {
 	//array of students
-	private static ArrayList<Student> stuList = new ArrayList<Students>();
+	private static ArrayList<Student> stuList = new ArrayList<Student>();
 	private static Scanner scanner;
 	private static String mainMenu (){
 		scanner = new Scanner(System.in);
