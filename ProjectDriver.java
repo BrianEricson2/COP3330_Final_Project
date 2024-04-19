@@ -66,7 +66,7 @@ public class ProjectDriver {
 		String selection = mainMenu();
 		while(selection.compareTo("0") != 0) {
 			switch(selection) {
-			case "1": //student management
+			if(selection.compareTo("1") == 0) { //student management
 				String stuSelect = studentMenu();
 				while((stuSelect.toUpperCase()).compareTo("X") != 0) {
 					switch((stuSelect.toUpperCase())) {
@@ -84,14 +84,16 @@ public class ProjectDriver {
 						printFeeInvoice((stuToPrintInvoice).toUpperCase());
 						break;
 					case "D": //print all students
+						printStudentList();
 						break;
 					case "X":
 						break;
 					}
 					stuSelect = studentMenu(); //user selects option from student menu
 				}
+			}
 				
-			case "2": //course management
+			else if(selection.compareTo("2") == 0) { //course management
 				String courseSelect = courseMenu();
 				while((courseSelect.toUpperCase()).compareTo("X") != 0) {
 					switch((courseSelect.toUpperCase())) {
@@ -376,6 +378,24 @@ public class ProjectDriver {
 			}
 		}
 		System.out.println("Student not found.\n"); //stuID not belonging to student arraylist
+	}
+
+	public static void printStudentList() {
+		System.out.println("PhD Students\n------------");
+		printStuListHelper("PhdStudent");
+		System.out.println("\nMS Students\n------------");
+		printStuListHelper("MsStudent");
+		System.out.println("\nUndergraduate Students\n------------");
+		printStuListHelper("UndergraduateStudent");
+		System.out.println("\n\n");
+	}
+	public static void printStuListHelper(String className) {
+		for(Student s : stuList) {
+			if((s.getClass().getSimpleName()).compareTo(className) == 0) { 
+				//getClass().getSimplerName() returns just the class name as a String
+				System.out.println("    - " + s.getName());
+			}
+		}
 	}
 }
 
