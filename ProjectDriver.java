@@ -52,6 +52,16 @@ public class ProjectDriver {
 	}
 	
 	public static void main(String[] args) {
+		// hardcoded cases for testing student menu; need to remove before submitting
+			int[] crnStuArr = {66636,56980,98123,36637};
+			stuList.add(new UndergraduateStudent("Ed Johnson", "EJ1111",crnStuArr, 3.51, true));
+			stuList.add(new UndergraduateStudent("William Jones","WJ1111",crnStuArr,2.9,true));
+			stuList.add(new UndergraduateStudent("Kirby Sons","KS1111",crnStuArr,3.25,false));
+			int[] crnStuArrGrad = {32658,69745,20315};
+			int[] crnTaArr = {91862,95310};
+			stuList.add(new MsStudent("Erika Jones","EJ1112",crnStuArrGrad,crnTaArr));
+			stuList.add(new PhdStudent("John Junaid","jo2978","Arup Guha","Climate Change",crnTaArr));
+		
 		scanner = new Scanner(System.in);
 		String selection = mainMenu();
 		while(selection.compareTo("0") != 0) {
@@ -69,6 +79,9 @@ public class ProjectDriver {
 					    deleteStudentById(stuIdToDelete);
 						break;
 					case "C": //print fee invoice
+						System.out.print("Input ID of student to print fee invoice: ");
+						String stuToPrintInvoice = scanner.nextLine();
+						printFeeInvoice((stuToPrintInvoice).toUpperCase());
 						break;
 					case "D": //print all students
 						break;
@@ -155,6 +168,8 @@ public class ProjectDriver {
 		// then the list containing all of the nondeleted lectures and labs is printed back to text file
 		String line = "";
 		File file = new File("D:\\Users\\beric\\eclipse-workspace\\Final Project\\src\\finalProject\\lec.txt");
+			//I can't get the relative file path to work on my eclipse, so we'll just have to change any file paths right before we submit
+		
 		ArrayList <String> strList = new ArrayList<String>(); //contains non-deleted lectures & labs
 		Scanner scanner = new Scanner(file);
 		while(scanner.hasNextLine()) {
@@ -351,7 +366,17 @@ public class ProjectDriver {
 	    if (!found) {
 	        System.out.println("Student not found.\n");
 	    }
-}
+	}
+
+	public static void printFeeInvoice(String stuID) {
+		for(Student s : stuList) {
+			if((s.getId()).compareTo(stuID) == 0) { //if a student in the student arraylist has the stuID
+				s.printInvoice(); //then call the printInvoice() method on the student object
+				return;
+			}
+		}
+		System.out.println("Student not found.\n"); //stuID not belonging to student arraylist
+	}
 }
 
 abstract class Student{
@@ -379,20 +404,20 @@ abstract class Student{
 		String line = "";
 		File file = new File("C:\\Users\\beric\\OneDrive\\Documents\\lec.txt");
 		Scanner scanner = new Scanner(file);
-		while(scanner.hasNextLine()) {
+		while(scanner.hasNextLine()) { //read text file
 			line = scanner.nextLine();
 			String[] arr = line.split(",");
 			if(Integer.parseInt(arr[0]) == crn) {
 				if(arr.length > 2) { //crn is a lecture
-					if((arr[4].toUpperCase()).compareTo("ONLINE") == 0) {
+					if((arr[4].toUpperCase()).compareTo("ONLINE") == 0) { //if lecture is online, then the credit hours is at the 6th index
 						return Integer.parseInt(arr[5]);
 					}
 					else {
-						return Integer.parseInt(arr[7]);
+						return Integer.parseInt(arr[7]); //if lecture is not online, then the credit hours is at the 8th index
 					}
 				}
 				else { //crn is a lab
-					return 0;
+					return 0; //labs have no credit hours
 				}
 			}
 		}
@@ -406,14 +431,14 @@ abstract class Student{
 		while(scanner.hasNextLine()) {
 			line = scanner.nextLine();
 			String[] arr = line.split(",");
-			if(Integer.parseInt(arr[0]) == crn) {
-				return arr[1];
+			if(Integer.parseInt(arr[0]) == crn) { //if course number is found in text file
+				return arr[1]; //return the course code at second element for all labs & lectures
 			}
 		}
 		return "Course not found";
 	}
 	
-	//abstract public void printInvoice();
+	abstract public void printInvoice();
 }
 
 class UndergraduateStudent extends Student{
@@ -422,10 +447,45 @@ class UndergraduateStudent extends Student{
 	boolean resident;
 	
 	public UndergraduateStudent(String name, String id, int [] undergradCrnsTaken, double gpa, boolean resident) {
-		super (name, id);
+		super (name, id.toUpperCase());
 		this.undergradCrnsTaken = undergradCrnsTaken;
 		this.gpa = gpa;
 		this.resident = resident;
+	}
+
+	@Override
+	public void printInvoice() {
+		System.out.print("VALENCE COLLEGE\n" +
+						 "ORLANDO FL 10101\n" +
+						 "---------------------\n\n" +
+						 "Fee Invoice Prepared for Student:\n" +
+						 (this.getId()).toUpperCase() + "-" + (this.getName()).toUpperCase() +"\n\n" +
+						 "1 Credit Hour = $120.25\n\n" +
+						 "CRN   CR_PREFIX   CR_HOURS\n");
+		double total = 35;
+		for(int undergradCrns : undergradCrnsTaken) {
+			int CrdHrs = 0;
+			String courseCode = "";
+			try {
+				CrdHrs = getListOfCrdHrs(undergradCrns);
+				courseCode = getListOfCrs(undergradCrns);
+			} catch (FileNotFoundException e) {
+				System.out.println("File error / file not found");
+			}
+			double cost = CrdHrs*120.25;
+			total += cost;
+			System.out.printf("" + undergradCrns + "  " + courseCode + "     " + CrdHrs + "           $ %.2f" + "\n", cost);
+		}
+		System.out.printf("\n            Health & id fees  $ 35.00\n\n" +
+						 "--------------------------------------\n" +
+						 "                              $ %.2f" + "\n", total);
+		if(this.gpa > 3.5 && total > 500) {
+			System.out.printf("                             -$ %.2f" + "\n", (total*0.25));
+			total *= 0.75;
+		}
+		if(this.resident == false) { total *= 2; }
+		System.out.printf("                            ----------\n" +
+						 "            TOTAL PAYMENTS    $ %.2f" + "\n\n\n", total);
 	}
 }
 
@@ -434,8 +494,12 @@ abstract class GraduateStudent extends Student{
 	
 	public GraduateStudent (String name, String id, int[] crn) {
 		//crn is the crn that the grad student is a teaching assistant for
-		super(name, id);
+		super(name, id.toUpperCase());
 		this.crnTA = crn;
+	}
+	
+	public int[] getCrnTA() {
+		return crnTA;
 	}
 }
 
@@ -449,6 +513,30 @@ class PhdStudent extends GraduateStudent{
 		this.advisor = advisor;
 		this.researchSubject = researchSubject;
 	}
+
+	@Override
+	public void printInvoice() {
+		System.out.print("VALENCE COLLEGE\n" +
+						 "ORLANDO FL 10101\n" +
+						 "---------------------\n\n" +
+						 "Fee Invoice Prepared for Student:\n" +
+						 (this.getId()).toUpperCase() + "-" + (this.getName()).toUpperCase() +"\n\n");
+		System.out.print("RESEARCH\n" +
+						  researchSubject + "                $ 700.00\n\n" +
+						  "            Health & id fees  $ 35.00\n\n" +
+						  "--------------------------------------\n");
+		double total = 735;
+		System.out.printf("                              $ %.2f\n", total);
+		if(this.getCrnTA().length == 2) {
+			System.out.printf("                             -$ %.2f" + "\n", (total*0.5));
+			total *= 0.5;
+		}
+		else if(this.getCrnTA().length >= 3) {
+			System.out.printf("                             -$ %.2f\n", (total-35));
+			total -= 700;
+		}
+		System.out.printf("            TOTAL PAYMENTS    $ %.2f\n\n\n", total);
+	}
 }
 
 class MsStudent extends GraduateStudent{
@@ -459,6 +547,34 @@ private int [] gradCrnsTaken;
 		//crn is the course number that the Phd student is a teaching assistant for
 		super(name, id, crn);
 		this.gradCrnsTaken = gradCrnsTaken;
+	}
+
+	@Override
+	public void printInvoice() {
+		System.out.print("VALENCE COLLEGE\n" +
+						 "ORLANDO FL 10101\n" +
+						 "---------------------\n\n" +
+						 "Fee Invoice Prepared for Student:\n" +
+						 (this.getId()).toUpperCase() + "-" + (this.getName()).toUpperCase() +"\n\n" +
+						 "1 Credit Hour = $300.00\n\n" +
+						 "CRN   CR_PREFIX   CR_HOURS\n");
+		double total = 35;
+		for(int gradCrns : gradCrnsTaken) {
+			int CrdHrs = 0;
+			String courseCode = "";
+			try {
+				CrdHrs = getListOfCrdHrs(gradCrns);
+				courseCode = getListOfCrs(gradCrns);
+			} catch (FileNotFoundException e) {
+				System.out.println("File error / file not found");
+			}
+			double cost = CrdHrs*300.00;
+			total += cost;
+			System.out.printf("" + gradCrns + "  " + courseCode + "     " + CrdHrs + "           $ %.2f" + "\n", cost);
+		}
+		System.out.printf("\n            Health & id fees  $ 35.00\n\n" +
+						 "--------------------------------------\n" +
+						 "            TOTAL PAYMENTS    $ %.2f" + "\n\n\n", total);
 	}
 }
 
