@@ -587,6 +587,7 @@ class UndergraduateStudent extends Student{
 				courseCode = getListOfCrs(undergradCrns);
 			} catch (FileNotFoundException e) {
 				System.out.println("File error / file not found");
+				return;
 			}
 			double cost = CrdHrs*120.25;
 			total += cost;
@@ -683,6 +684,7 @@ private int [] gradCrnsTaken;
 				courseCode = getListOfCrs(gradCrns);
 			} catch (FileNotFoundException e) {
 				System.out.println("File error / file not found");
+				return;
 			}
 			double cost = CrdHrs*300.00;
 			total += cost;
