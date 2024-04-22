@@ -65,7 +65,6 @@ public class ProjectDriver {
 		scanner = new Scanner(System.in);
 		String selection = mainMenu();
 		while(selection.compareTo("0") != 0) {
-			switch(selection) {
 			if(selection.compareTo("1") == 0) { //student management
 				String stuSelect = studentMenu();
 				while((stuSelect.toUpperCase()).compareTo("X") != 0) {
@@ -116,14 +115,30 @@ public class ProjectDriver {
 						}
 						break;
 					case "C": // code to add a lab to a class
-						System.out.print("Enter the Class Number to add a Lab to: ");
-						String classNumber = scanner.nextLine();
-						System.out.print("Enter the Lab's Class Number: ");
-						String labNumber = scanner.nextLine();
-						try {
-							addLabToClass(classNumber, labNumber);  
-						} catch (FileNotFoundException e) {
-						        System.out.println("File error / file not found");
+						System.out.print("Enter Lab or Lecture: ");
+						String labOrLecture = scanner.nextLine();
+						
+						if(labOrLecture.compareToIgnoreCase("Lab") == 0) {
+							System.out.print("Enter the Class Number to add a Lab to: ");
+							String classNumber = scanner.nextLine();
+							System.out.print("Enter the Lab's Class Number: ");
+							String labNumber = scanner.nextLine();
+							try {
+								addLabToClass(classNumber, labNumber);  
+							} catch (FileNotFoundException e) {
+							        System.out.println("File error / file not found");
+							}
+						}
+						else if(labOrLecture.compareToIgnoreCase("Lecture") == 0) {
+							try {
+								addLecture();
+							}
+							catch(FileNotFoundException e) {
+								System.out.println("File error / file not found");
+							}
+						}
+						else {
+							System.out.println("Invalid input.");
 						}
 						break;
 					case "X":
@@ -235,7 +250,7 @@ public class ProjectDriver {
 
 		if (classFound) {
 		    // Prompts the user for lab details
-		    System.out.println("Enter Lab details (e.g., LabNumber Room): ");
+		    System.out.println("Enter Lab details (e.g., Lab Room): ");
 		    String labDetails = scanner.nextLine(); // Use the existing scanner instance
 
 		    // Add the new lab to the list
@@ -397,6 +412,87 @@ public class ProjectDriver {
 			}
 		}
 	}
+	public static void addLecture() throws FileNotFoundException {
+	    File file = new File("D:\\Users\\beric\\eclipse-workspace\\Final Project\\src\\COP3330_Final_Project\\lec.txt"); 
+	    List<String> lines = new ArrayList<>();
+	    Scanner localScanner = new Scanner(System.in);
+		    
+	    // Prompt user for lecture details
+	    System.out.print("Is the lecture's mode online (Y/N): ");
+	    String onlineCheck = localScanner.nextLine();
+	    int onlineCheckInt = onlineCheck.compareToIgnoreCase("Y");
+	    if(onlineCheckInt == 0)
+	    	System.out.println("Enter new lecture details\n(Format: ClassNumber,Prefix,Title,Grad/Undergrad,Mode,CreditHours):");
+	    else
+	    	System.out.println("Enter new lecture details\\n(Format: ClassNumber,Prefix,Title,Grad/Undergrad,Mode,Location,HasLab,CreditHours):");
+	    String newLectureDetails = localScanner.nextLine();
+		    
+	    // Split and parse details for validation
+	    String[] details = newLectureDetails.split(",");
+	    if ((onlineCheckInt != 0 && details.length != 8) || (onlineCheckInt == 0 && details.length != 6)) {
+	        System.out.println("Error: Incorrect format. Please follow the specified format.");
+	        return;
+	    }
+	    
+	    // Validate class number and check uniqueness
+	    int lectureNumber = 0;
+	    try {
+	        lectureNumber = Integer.parseInt(details[0]);
+	    } catch (NumberFormatException e) {
+	        System.out.println("Invalid class number. It must be numeric.");
+	        return;
+	    }
+		    
+	    boolean isUnique = true;
+	    try (Scanner fileScanner = new Scanner(file)) {
+	        while (fileScanner.hasNextLine()) {
+	            String line = fileScanner.nextLine();
+	            lines.add(line);
+	            if (line.startsWith(details[0])) {
+	                isUnique = false;
+	            }
+	        }
+	    }
+
+	    if (!isUnique) {
+	        System.out.println("Lecture number already in use.");
+	        return;
+	    }
+		    
+	    // Add the new lecture to the list
+	    lines.add(newLectureDetails);
+
+	    // Write the updated list back to the file
+	    try (PrintWriter writer = new PrintWriter(file)) {
+	        for (String line : lines) {
+	            writer.println(line);
+	        }
+	    }
+	    
+	    if(onlineCheckInt != 0 && details[6].compareToIgnoreCase("yes") == 0) {
+	    	System.out.print("How many labs belong to this lecture: ");
+	    	try {
+	    		int numLabs = Integer.parseInt(localScanner.nextLine());
+	    		int i = 0;
+	    		while(i < numLabs) {
+	    			System.out.print("Enter class number for lab #" + (i+1) + ": ");
+	    			String labCrn = localScanner.nextLine();
+	    			try{
+	    				addLabToClass(details[0],labCrn);
+	    			}
+	    			catch(FileNotFoundException e) {
+	    				System.out.println("File error / file not found");
+	    			}
+	    			i++;
+	   		}
+	    	}
+	    	catch(NumberFormatException e) {
+	    		System.out.println("Incorrect input. Must input integer.");
+	    	}
+	    }
+
+		    System.out.println("Lecture added successfully.");
+		}
 }
 
 abstract class Student{
