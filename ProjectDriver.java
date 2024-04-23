@@ -238,8 +238,14 @@ public class ProjectDriver {
 		        String[] arr = line.split(",");
 		        i++;
 		        if (arr[0].compareTo(classNumber) == 0) { // Check if the line represents the class
-		            classFound = true;
-		            lectureIndex = i;
+				if(arr.length <= 2) {
+					System.out.println("Can not add a lab to a lab. Choose a lecture to add a lab to.\n\n");
+					return;
+				}
+				else{
+					classFound = true;
+					lectureIndex = i;
+				}
 		        }
 		        if(arr[0].compareTo(labNumber) == 0) {
 		        	System.out.println("Class number for lab already in use.");
