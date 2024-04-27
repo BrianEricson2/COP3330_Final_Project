@@ -424,49 +424,52 @@ public class ProjectDriver {
 	    Scanner localScanner = new Scanner(System.in);
 		    
 	    // Prompt user for lecture details
-	    System.out.print("Is the lecture's mode online (Y/N): ");
-	    String onlineCheck = localScanner.nextLine();
-	    int onlineCheckInt = onlineCheck.compareToIgnoreCase("Y");
-	    if(onlineCheckInt == 0)
-	    	System.out.println("Enter new lecture details\n(Format: ClassNumber,Prefix,Title,Grad/Undergrad,Mode,CreditHours):");
-	    else
-	    	System.out.println("Enter new lecture details\\n(Format: ClassNumber,Prefix,Title,Grad/Undergrad,Mode,Location,HasLab,CreditHours):");
-	    String newLectureDetails = localScanner.nextLine();
-		    
-	    // Split and parse details for validation
-	    String[] details = newLectureDetails.split(",");
-	    if ((onlineCheckInt != 0 && details.length != 8) || (onlineCheckInt == 0 && details.length != 6)) {
-	        System.out.println("Error: Incorrect format. Please follow the specified format.");
-	        return;
-	    }
-	    
-	    // Validate class number and check uniqueness
-	    int lectureNumber = 0;
-	    try {
-	        lectureNumber = Integer.parseInt(details[0]);
-	    } catch (NumberFormatException e) {
-	        System.out.println("Invalid class number. It must be numeric.");
-	        return;
-	    }
-		    
+		System.out.print("Enter the Lecture Number to a Lab to: ");
+		String lectureNumberStr = localScanner.nextLine();
+
+		// Validate class number and check uniqueness
+		int lectureNumber = 0;
+		try {
+			lectureNumber = Integer.parseInt(lectureNumberStr);
+		} catch (NumberFormatException e) {
+		        System.out.println("Invalid class number. It must be numeric.");
+		        return;
+		}
+			    
 	    boolean isUnique = true;
 	    try (Scanner fileScanner = new Scanner(file)) {
 	        while (fileScanner.hasNextLine()) {
 	            String line = fileScanner.nextLine();
 	            lines.add(line);
-	            if (line.startsWith(details[0])) {
+	            if (line.startsWith(lectureNumberStr)) {
 	                isUnique = false;
 	            }
 	        }
 	    }
 
-	    if (!isUnique) {
-	        System.out.println("Lecture number already in use.");
+		if (!isUnique) {
+		        System.out.println("Lecture number already in use.");
+		        return;
+		    }
+		
+	    System.out.print("Is the lecture's mode online (Y/N): ");
+	    String onlineCheck = localScanner.nextLine();
+	    int onlineCheckInt = onlineCheck.compareToIgnoreCase("Y");
+	    if(onlineCheckInt == 0)
+	    	System.out.println("Enter new lecture details\n(Format: Prefix,Title,Grad/Undergrad,Mode,CreditHours):");
+	    else
+	    	System.out.println("Enter new lecture details\\n(Format: Prefix,Title,Grad/Undergrad,Mode,Location,HasLab,CreditHours):");
+	    String newLectureDetails = localScanner.nextLine();
+		    
+	    // Split and parse details for validation
+	    String[] details = newLectureDetails.split(",");
+	    if ((onlineCheckInt != 0 && details.length != 7) || (onlineCheckInt == 0 && details.length != 5)) {
+	        System.out.println("Error: Incorrect format. Please follow the specified format.");
 	        return;
 	    }
 		    
 	    // Add the new lecture to the list
-	    lines.add(newLectureDetails);
+	    lines.add(lectureNumberStr + "," + newLectureDetails);
 
 	    // Write the updated list back to the file
 	    try (PrintWriter writer = new PrintWriter(file)) {
