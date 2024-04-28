@@ -2,7 +2,7 @@ package finalProject;
 
 import java.io.*;
 import java.util.*;
-
+//Denny Hernandez, Claire Hufstetler, Brian Ericson, Ashley Irovando
 public class ProjectDriver {
 	//array of students
 	private static ArrayList<Student> stuList = new ArrayList<Student>();
@@ -52,15 +52,7 @@ public class ProjectDriver {
 	}
 	
 	public static void main(String[] args) {
-		// hardcoded cases for testing student menu; need to remove before submitting
-			int[] crnStuArr = {66636,56980,98123,36637};
-			stuList.add(new UndergraduateStudent("Ed Johnson", "EJ1111",crnStuArr, 3.51, true));
-			stuList.add(new UndergraduateStudent("William Jones","WJ1111",crnStuArr,2.9,true));
-			stuList.add(new UndergraduateStudent("Kirby Sons","KS1111",crnStuArr,3.25,false));
-			int[] crnStuArrGrad = {32658,69745,20315};
-			int[] crnTaArr = {91862,95310};
-			stuList.add(new MsStudent("Erika Jones","EJ1112",crnStuArrGrad,crnTaArr));
-			stuList.add(new PhdStudent("John Junaid","jo2978","Arup Guha","Climate Change",crnTaArr));
+
 		
 		scanner = new Scanner(System.in);
 		String selection = mainMenu();
